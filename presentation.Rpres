@@ -1,28 +1,95 @@
-presentation
+Interim Presentation
 ========================================================
-author: 
+author: Dylan Sun & Zijiang Yang
 date: 
 autosize: true
 
-First Slide
+Objectives
 ========================================================
 
-For more details on authoring R presentations please visit <https://support.rstudio.com/hc/en-us/articles/200486468>.
+- Determining the erectile function rates following SBRT
+- Determining predictors of erectile function preservation after SBRT
 
-- Bullet 1
-- Bullet 2
-- Bullet 3
-
-Slide With Code
+Hypotheses
 ========================================================
+Negatively Associated:
+- Age, Gleason Score, T-stage, PSA, ADT, BMI
 
-```{r}
-summary(cars)
+Positively Associated:
+- HRQOL, Erectile Function at Baseline
+
+We expect HRQOL and Erectile Function at Baseline to be highly correlated, because erectile function is included in the questionnaire. 
+
+Questions and Concerns
+========================================================
+- BMI Outlier
+
+```{r echo=FALSE}
+library(readxl)
+library(knitr)
+library(data.table)
+library(corrplot)
+library(broom)
+library(stargazer)
+library(ggplot2)
+library(gridExtra)
+prostate <- read_excel("~/Downloads/Prostate SBRT Sexual Function Data.xlsx", skip = 7)
+prostate <- data.table(prostate)
+prostate <- prostate[complete.cases(prostate)] # remove last row which is empty
+# Code ADT as numeric; Y = 1, N = 0
+prostate[ADT == "Y", ADT := 1]
+prostate[ADT == "N", ADT := 0]
+prostate[, ADT := as.numeric(ADT)]
+bmi_hist <- ggplot(data = prostate, aes(x = BMI)) + 
+  geom_histogram()
+bmi_hist
 ```
 
-Slide With Plot
-========================================================
+***
+Subject 67 has a BMI of 112. 
+This is theoretically possible.
 
-```{r, echo=FALSE}
-plot(cars)
+
+========================================================
+```{r echo=FALSE}
+correlations <- cor(prostate)
+corrplot(correlations, method = "circle", tl.cex = 1.5, number.cex = 0.6)
 ```
+
+
+Tables
+========================================================
+```{r echo=FALSE}
+nf_nf <- dim(prostate[`Erectile Function at Baseline` == 0 & `Erectile Function at 2 years` == 0])[1]
+nf_hf <- dim(prostate[`Erectile Function at Baseline` == 0 & `Erectile Function at 2 years` == 1])[1]
+hf_nf <- dim(prostate[`Erectile Function at Baseline` == 1 & `Erectile Function at 2 years` == 0])[1]
+hf_hf <- dim(prostate[`Erectile Function at Baseline` == 1 & `Erectile Function at 2 years` == 1])[1]
+counts <- data.table(never_functional = nf_nf, gain_function = nf_hf, loss_function = hf_nf, retain_function = hf_hf)
+kable(counts)
+```
+
+Model
+========================================================
+$logit(EF2) = \beta_{intercept} + \beta_{age} Age + \beta_{Gleason} Gleason + \beta_{Tstage} TStage + \beta_{PSA} PSA \\
++ \beta_{HRQOL} HRQOL + \beta_{ADT} ADT + \beta_{BMI} BMI + \beta_{EFbase} EFBase$
+
+Results
+========================================================
+```{r echo=FALSE}
+prostate_logreg <- glm(`Erectile Function at 2 years` ~ Age + `Gleason Score` + `T-Stage Group` + PSA + HRQOL + ADT + BMI + `Erectile Function at Baseline`, data = prostate)
+# summary(prostate_logreg)
+kable(tidy(prostate_logreg))
+```
+
+Results
+========================================================
+Error rate = $\dfrac{\sum |predicted-actual|}{total}$
+```{r echo=FALSE}
+prostate <- prostate[, predicted_prob := predict(prostate_logreg)]
+prostate <- prostate[, predicted := ifelse(predicted_prob >= 0.5, 1, 0)]
+error_rate <- prostate[, sum(abs(predicted - `Erectile Function at 2 years`))]/dim(prostate)[1]
+error_rate
+```
+
+Future Plan
+========================================================
