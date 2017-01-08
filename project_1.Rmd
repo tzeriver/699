@@ -1,0 +1,13 @@
+---
+title: "project 1"
+author: "Zijiang Yang, Dylan Sun"
+date: "2017-01-08"
+output: html_document
+---
+
+
+# Hello
+```{r}
+
+```
+
