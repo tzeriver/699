@@ -1,13 +1,125 @@
 ---
 title: "project 1"
 author: "Zijiang Yang, Dylan Sun"
-date: "2017-01-08"
-output: html_document
+date: '2017-01-08'
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 
-# Hello
+### Load in the data
+#### Load packages
+```{r, message=FALSE, warning=FALSE, results='hide'}
+library(readxl)
+library(knitr)
+library(data.table)
+library(corrplot)
+library(broom)
+library(stargazer)
+library(ggplot2)
+library(gridExtra)
+```
+
+```{r, message=FALSE, warning=FALSE, results="hide"}
+prostate <- read_excel("~/Downloads/Prostate SBRT Sexual Function Data.xlsx", skip = 7)
+prostate <- data.table(prostate)
+prostate <- prostate[complete.cases(prostate)] # remove last row which is empty
+# Code ADT as numeric; Y = 1, N = 0
+prostate[ADT == "Y", ADT := 1]
+prostate[ADT == "N", ADT := 0]
+prostate[, ADT := as.numeric(ADT)]
+```
+
+# This is what our data looks like
 ```{r}
+kable(head(prostate))
+```
+
+
+## Exploratory Data analysis
+### Histograms
+```{r, message=FALSE, warning=FALSE}
+age_hist <- ggplot(data = prostate, aes(x = Age)) + 
+  geom_histogram()
+psa_hist <- ggplot(data = prostate, aes(x = PSA)) + 
+  geom_histogram()
+hrqol_hist <- ggplot(data = prostate, aes(x = HRQOL)) + 
+  geom_histogram()
+bmi_hist <- ggplot(data = prostate, aes(x = BMI)) + 
+  geom_histogram()
+grid.arrange(age_hist, psa_hist, hrqol_hist, bmi_hist, ncol = 2)
+```
+
+There appears to be an outlier for BMI: subject 67 has a BMI of 112. However, based on the Wikipedia page of the world's heaviest people, a BMI of 112 is realistically possible and so we decided against removing this row. 
+
+The PSA values also appear to be reasonable. 
+
+### Correlation matrix
+```{r}
+correlations <- cor(prostate)
+corrplot(correlations, method = "number", tl.cex = 0.75, number.cex = 0.6)
+```
+
+
+### Count the number of people in each category
+We should count the number of people in each category:
+Has function -> no function
+no function -> no function
+Has function -> has function
+no function -> has function 
+```{r}
+nf_nf <- dim(prostate[`Erectile Function at Baseline` == 0 & `Erectile Function at 2 years` == 0])[1]
+nf_hf <- dim(prostate[`Erectile Function at Baseline` == 0 & `Erectile Function at 2 years` == 1])[1]
+hf_nf <- dim(prostate[`Erectile Function at Baseline` == 1 & `Erectile Function at 2 years` == 0])[1]
+hf_hf <- dim(prostate[`Erectile Function at Baseline` == 1 & `Erectile Function at 2 years` == 1])[1]
+counts <- data.table(never_functional = nf_nf, gain_function = nf_hf, loss_function = hf_nf, retain_function = hf_hf)
+kable(counts)
+```
+
+
+### Test of proportions 
+```{r}
+successes <- prostate[, c(sum(`Erectile Function at Baseline`), sum(`Erectile Function at 2 years`))]
+failures <- dim(prostate)[1] - successes
+prop_table <- data.table(successes, failures)
+
+kable(tidy(prop.test(as.matrix(prop_table))))
+```
+
+
+### Logistic Regression
+```{r}
+prostate_logreg <- glm(`Erectile Function at 2 years` ~ Age + `Gleason Score` + `T-Stage Group` + PSA + HRQOL + ADT + BMI + `Erectile Function at Baseline`, data = prostate)
+# summary(prostate_logreg)
+kable(tidy(prostate_logreg))
+prostate <- prostate[, predicted_prob := predict(prostate_logreg)]
+prostate <- prostate[, predicted := ifelse(predicted_prob >= 0.5, 1, 0)]
+error_rate <- prostate[, sum(abs(predicted - `Erectile Function at 2 years`))]/dim(prostate)[1]
+error_rate
 
 ```
+```{r, results = "asis"}
+stargazer(prostate_logreg, header = F, type = "latex")
+```
+
+Despite HRQOL and Erectile Function at Baseline being highly correlated (erectile function of baseline in included in the HRQOL score), we do not feel that removing either one of them is justified. Both are highly predictive in the model and removing one or the other would lose information. 
+
+#### Logistic regression on subsets of the data
+```{r}
+func_at_baseline <- prostate[`Erectile Function at Baseline` == 1] # subset only rows in which the men had erectile function at baseline 
+sub_logreg <- glm(`Erectile Function at 2 years` ~ Age + `Gleason Score` + `T-Stage Group` + PSA + HRQOL + ADT + BMI + `Erectile Function at Baseline`, data = func_at_baseline)
+kable(tidy(sub_logreg))
+func_at_baseline <- func_at_baseline[, predicted_prob := predict(prostate_logreg)]
+func_at_baseline <- func_at_baseline[, predicted := ifelse(predicted_prob >= 0.5, 1, 0)]
+error_rate <- func_at_baseline[, sum(abs(predicted - `Erectile Function at 2 years`))]/dim(prostate)[1]
+error_rate
+```
+
+Other stuff to consider adding to the paper:
+We ran models removing one of either quality of life or erectile function at baseline. Those models are not included by we can incldue them if we want to.
+
+
+
+
 
