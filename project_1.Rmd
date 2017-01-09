@@ -90,7 +90,7 @@ kable(tidy(prop.test(as.matrix(prop_table))))
 
 ### Logistic Regression
 ```{r}
-prostate_logreg <- glm(`Erectile Function at 2 years` ~ Age + `Gleason Score` + `T-Stage Group` + PSA + HRQOL + ADT + BMI + `Erectile Function at Baseline`, data = prostate)
+prostate_logreg <- glm(`Erectile Function at 2 years` ~ Age + `Gleason Score` + `T-Stage Group` + PSA + HRQOL + ADT + BMI + `Erectile Function at Baseline`, family = binomial(link = "logit") ,data = prostate)
 # summary(prostate_logreg)
 kable(tidy(prostate_logreg))
 prostate <- prostate[, predicted_prob := predict(prostate_logreg)]
@@ -108,9 +108,9 @@ Despite HRQOL and Erectile Function at Baseline being highly correlated (erectil
 #### Logistic regression on subsets of the data
 ```{r}
 func_at_baseline <- prostate[`Erectile Function at Baseline` == 1] # subset only rows in which the men had erectile function at baseline 
-sub_logreg <- glm(`Erectile Function at 2 years` ~ Age + `Gleason Score` + `T-Stage Group` + PSA + HRQOL + ADT + BMI + `Erectile Function at Baseline`, data = func_at_baseline)
+sub_logreg <- glm(`Erectile Function at 2 years` ~ Age + `Gleason Score` + `T-Stage Group` + PSA + HRQOL + ADT + BMI + `Erectile Function at Baseline`, family = binomial(link = "logit"), data = func_at_baseline)
 kable(tidy(sub_logreg))
-func_at_baseline <- func_at_baseline[, predicted_prob := predict(prostate_logreg)]
+func_at_baseline <- func_at_baseline[, predicted_prob := predict(sub_logreg)]
 func_at_baseline <- func_at_baseline[, predicted := ifelse(predicted_prob >= 0.5, 1, 0)]
 error_rate <- func_at_baseline[, sum(abs(predicted - `Erectile Function at 2 years`))]/dim(prostate)[1]
 error_rate
