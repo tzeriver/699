@@ -24,7 +24,7 @@ Questions and Concerns
 ========================================================
 - BMI Outlier
 
-![plot of chunk unnamed-chunk-1](Presentation-figure/unnamed-chunk-1-1.png)
+![plot of chunk unnamed-chunk-1](presentation-figure/unnamed-chunk-1-1.png)
 
 ***
 Subject 67 has a BMI of 112. 
@@ -32,7 +32,7 @@ This is theoretically possible.
 
 
 ========================================================
-![plot of chunk unnamed-chunk-2](Presentation-figure/unnamed-chunk-2-1.png)
+![plot of chunk unnamed-chunk-2](presentation-figure/unnamed-chunk-2-1.png)
 
 
 Tables
@@ -52,22 +52,22 @@ Results
 
 |term                            |   estimate| std.error|  statistic|   p.value|
 |:-------------------------------|----------:|---------:|----------:|---------:|
-|(Intercept)                     |  0.6215224| 0.3389228|  1.8338172| 0.0676215|
-|Age                             | -0.0094434| 0.0034752| -2.7173835| 0.0069428|
-|`Gleason Score`                 |  0.0078768| 0.0372337|  0.2115504| 0.8325942|
-|`T-Stage Group`                 | -0.0511802| 0.0628191| -0.8147237| 0.4158440|
-|PSA                             |  0.0099910| 0.0047340|  2.1104646| 0.0356039|
-|HRQOL                           |  0.0029451| 0.0010672|  2.7596882| 0.0061232|
-|ADT                             | -0.0909474| 0.0772114| -1.1779012| 0.2397223|
-|BMI                             | -0.0024765| 0.0033832| -0.7319945| 0.4647145|
-|`Erectile Function at Baseline` |  0.2867081| 0.0659157|  4.3496193| 0.0000184|
+|(Intercept)                     |  0.7703800| 2.4906641|  0.3093070| 0.7570880|
+|Age                             | -0.0610443| 0.0241676| -2.5258791| 0.0115409|
+|`Gleason Score`                 |  0.0796421| 0.2499178|  0.3186730| 0.7499745|
+|`T-Stage Group`                 | -0.5775284| 0.5316308| -1.0863337| 0.2773314|
+|PSA                             |  0.0615445| 0.0343769|  1.7902897| 0.0734074|
+|HRQOL                           |  0.0229020| 0.0081191|  2.8207450| 0.0047912|
+|ADT                             | -0.7501227| 0.6054252| -1.2390014| 0.2153450|
+|BMI                             | -0.0216384| 0.0301905| -0.7167285| 0.4735416|
+|`Erectile Function at Baseline` |  1.4699717| 0.4362079|  3.3698883| 0.0007520|
 
 Results
 ========================================================
 Error rate = $\dfrac{\sum |predicted-actual|}{total}$
 
 ```
-[1] 0.2123077
+[1] 0.2338462
 ```
 
 Future Plan

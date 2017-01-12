@@ -76,7 +76,7 @@ $logit(EF2) = \beta_{intercept} + \beta_{age} Age + \beta_{Gleason} Gleason + \b
 Results
 ========================================================
 ```{r echo=FALSE}
-prostate_logreg <- glm(`Erectile Function at 2 years` ~ Age + `Gleason Score` + `T-Stage Group` + PSA + HRQOL + ADT + BMI + `Erectile Function at Baseline`, data = prostate)
+prostate_logreg <- glm(`Erectile Function at 2 years` ~ Age + `Gleason Score` + `T-Stage Group` + PSA + HRQOL + ADT + BMI + `Erectile Function at Baseline`, data = prostate, family = binomial(link = "logit"))
 # summary(prostate_logreg)
 kable(tidy(prostate_logreg))
 ```
