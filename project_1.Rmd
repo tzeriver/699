@@ -29,6 +29,7 @@ prostate <- prostate[complete.cases(prostate)] # remove last row which is empty
 prostate[ADT == "Y", ADT := 1]
 prostate[ADT == "N", ADT := 0]
 prostate[, ADT := as.numeric(ADT)]
+prostate[, centered_age := Age - mean(Age)]
 ```
 
 # This is what our data looks like
@@ -47,8 +48,13 @@ psa_hist <- ggplot(data = prostate, aes(x = PSA)) +
 hrqol_hist <- ggplot(data = prostate, aes(x = HRQOL)) + 
   geom_histogram()
 bmi_hist <- ggplot(data = prostate, aes(x = BMI)) + 
-  geom_histogram()
+  geom_histogram(fill = "red")
+bmi_hist
 grid.arrange(age_hist, psa_hist, hrqol_hist, bmi_hist, ncol = 2)
+
+bmi_boxplot <- ggplot(data = prostate, aes(x = 0, y = BMI)) + 
+  geom_boxplot(color = "blue", outlier.color = "red")
+bmi_boxplot
 ```
 
 There appears to be an outlier for BMI: subject 67 has a BMI of 112. However, based on the Wikipedia page of the world's heaviest people, a BMI of 112 is realistically possible and so we decided against removing this row. 
@@ -90,15 +96,32 @@ kable(tidy(prop.test(as.matrix(prop_table))))
 
 ### Logistic Regression
 ```{r}
-prostate_logreg <- glm(`Erectile Function at 2 years` ~ Age + `Gleason Score` + `T-Stage Group` + PSA + HRQOL + ADT + BMI + `Erectile Function at Baseline`, family = binomial(link = "logit") ,data = prostate)
-# summary(prostate_logreg)
-kable(tidy(prostate_logreg))
-prostate <- prostate[, predicted_prob := predict(prostate_logreg)]
+prostate_logreg <- glm(`Erectile Function at 2 years` ~ Age*PSA + `Gleason Score` + `T-Stage Group` + PSA + HRQOL + ADT + BMI + `Erectile Function at Baseline`, family = binomial(link = "logit"), data = prostate)
+summary(prostate_logreg)
+
+# edit results table
+prostate_logreg_results <- data.table(tidy(prostate_logreg))
+prostate_logreg_results[, lower := exp(estimate - std.error)]
+prostate_logreg_results[, OR := exp(estimate)]
+prostate_logreg_results[, upper := exp(estimate + std.error)]
+kable(prostate_logreg_results[, .(term, lower, OR, upper, p.value)], digits = 2)
+
+# calculate error rate
+prostate <- prostate[, predicted_prob := predict(prostate_logreg, type = "response")]
 prostate <- prostate[, predicted := ifelse(predicted_prob >= 0.5, 1, 0)]
 error_rate <- prostate[, sum(abs(predicted - `Erectile Function at 2 years`))]/dim(prostate)[1]
 error_rate
 
 ```
+# Manually create small prostate table for example predictions
+```{r}
+example_prostate <- data.table(Age = 69, "Gleason Score" =  7, "T-Stage Group" = 0, "PSA" = 7.7, 
+                               HRQOL = 56, ADT = 0, BMI = 29, "Erectile Function at Baseline" =  1)
+example_prostate <- example_prostate[, probability_of_function := predict(prostate_logreg, example_prostate, type = "response")]
+example_prostate <- example_prostate[, predicted_function := ifelse(probability_of_function >= 0.5, 1, 0)]
+```
+
+
 ```{r, results = "asis"}
 stargazer(prostate_logreg, header = F, type = "latex")
 ```
@@ -118,6 +141,19 @@ error_rate
 
 Other stuff to consider adding to the paper:
 We ran models removing one of either quality of life or erectile function at baseline. Those models are not included by we can incldue them if we want to.
+
+
+# Base guessing
+```{r}
+sub_logreg <- glm(`Erectile Function at 2 years` ~ PSA + HRQOL + Age + `Erectile Function at Baseline`, family = binomial(link = "logit"), data = prostate)
+kable(tidy(sub_logreg))
+
+# calculate error rate
+prostate <- prostate[, predicted_prob := predict(sub_logreg)]
+prostate <- prostate[, predicted := ifelse(predicted_prob >= 0.5, 1, 0)]
+error_rate <- prostate[, sum(abs(predicted - `Erectile Function at 2 years`))]/dim(prostate)[1]
+error_rate
+```
 
 
 
