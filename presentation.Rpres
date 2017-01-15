@@ -12,7 +12,6 @@ library(broom)
 library(stargazer)
 library(ggplot2)
 library(gridExtra)
-library(plotly)
 prostate <- read_excel("~/Downloads/Prostate SBRT Sexual Function Data.xlsx", skip = 7)
 prostate <- data.table(prostate)
 prostate <- prostate[complete.cases(prostate)] # remove last row which is empty
@@ -70,11 +69,8 @@ Questions and Concerns
 ```{r echo=FALSE}
 bmi_hist <- ggplot(data = prostate, aes(x = BMI)) + 
   geom_histogram()
-p <- ggplotly(bmi_hist)
-htmlwidgets::saveWidget(as.widget(p), file = "demo.html")
+bmi_hist
 ```
-<iframe src="demo.html" style="position:left;height:100%;width:100%"></iframe>
-
 
 ***
 Subject 67 has a BMI of 112. 

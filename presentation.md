@@ -45,9 +45,7 @@ Questions and Concerns
 ========================================================
 - BMI Outlier
 
-
-<iframe src="demo.html" style="position:left;height:100%;width:100%"></iframe>
-
+![plot of chunk unnamed-chunk-3](presentation-figure/unnamed-chunk-3-1.png)
 
 ***
 Subject 67 has a BMI of 112. 
