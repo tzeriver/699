@@ -45,7 +45,8 @@ Questions and Concerns
 ========================================================
 - BMI Outlier
 
-![plot of chunk unnamed-chunk-3](presentation-figure/unnamed-chunk-3-1.png)
+
+<iframe src="demo.html" style="position:left;height:100%;width:100%"></iframe>
 
 
 ***
@@ -105,5 +106,6 @@ Prediction
 |   -6.14|             7|       0|  5.4|    71|   0|  31|         0|      0.23|         0|
 |   10.86|             7|       1| 13.9|     0|   1|  24|         0|      0.01|         0|
 |    7.86|             7|       1|  2.9|     4|   0|  34|         0|      0.01|         0|
+
 
 
