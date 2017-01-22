@@ -30,7 +30,7 @@ Our model shows that age, score on a health survey, and prostate-specific antige
 - Erectile Function at 2 years
 
 ## Methods
-
+Clinical and biomarker data were collected from 325 patients with prostate cancer that experienced SBRT and were followed for 2 years or longer between 2008 and 2013. All the patients in the data were treated at a single institution. 
 
 Our analysis consists of two parts. In the first part, we carry out a series of exploratory data analysis in order to understand the data in general so that we can choose an appropriate statistical model to build, and in the second part we build a logistic regression model to predict the probability that one will have erectile function at two years after SBRT.
 
