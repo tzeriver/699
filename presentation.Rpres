@@ -99,9 +99,9 @@ prostate_logreg <- glm(`Erectile Function at 2 years` ~ centered_age + `Gleason 
 
 # edit results table
 prostate_logreg_results <- data.table(tidy(prostate_logreg))
-prostate_logreg_results[, lower := exp(estimate - std.error)]
+prostate_logreg_results[, lower := exp(estimate - 1.96*std.error)]
 prostate_logreg_results[, OR := exp(estimate)]
-prostate_logreg_results[, upper := exp(estimate + std.error)]
+prostate_logreg_results[, upper := exp(estimate + 1.96*std.error)]
 kable(prostate_logreg_results[, .(term, lower, OR, upper, p.value)], digits = 2)
 ```
 

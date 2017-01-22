@@ -1,0 +1,30 @@
+---
+title: "Paper draft: Predicting Erectile Function in Patients Undergoing Stereotactic Body Radiation Therapy"
+author: "Dylan Sun and Zijiang Yang"
+date: "2017-01-26"
+header-includes:
+    - \usepackage{setspace}\doublespacing
+output: pdf_document
+---
+
+## Abstract
+Stereotactic Body Radiation Therapy (SBRT) is a new method for treating prostate cancer. This study looks at the potential for SBRT patients to experience erectile dysfunction, an important side-effect that is associated with the treatment. Using a logistic regression model, this study finds that baseline variables including age, score on a quality of life survey, erectile function at baseline, and prostate-specific antigen levels can be used to predict the probability of having erectile function two years after recieving SBRT. The model performs well, with XX area under curve and XX% predictive probability. Following the results from the model, we conclude that around XX% of patients who undergo SBRT are likely to lose erectile function. 
+
+## Introduction
+Stereotactic Body Radiation Therapy (SBRT) is a new treatment option available for prostate cancer, the most common form of male cancer. The treatment is characterized by relatively few instances of high dose radiation over a short period of time, as opposed to previous treatment methods with small doses of radiation over a longer period of time. Given that SBRT has around the same tumor kill effectiveness as the previous treatment, and that prostate cancer is quite common and very treatable, the largest concern associated with treatment selection is the lifestyle impact of side-effects. In particular, the most relevant side-effect associated with SBRT is the potential for erectile dysfunction. 
+
+In this study, data collected from SBRT patients is used to fit a logistic regression model exploring the likelihood of losing erectile function following treatment with SBRT. The model shows that variables such as age, score on a health survey, and prostate-specific antigen levels can be used to predict the probability of erectile function two years post-treatment with reasonably high accuracy. 
+
+## Statistical Methods
+
+
+## Results
+
+
+## Discussion
+
+
+### Final Conclusions
+
+
+## Appendix
