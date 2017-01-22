@@ -1,59 +1,120 @@
 ---
-title: "Paper draft: Predicting Erectile Function in Patients Undergoing Stereotactic Body Radiation Therapy"
-author: "Dylan Sun and Zijiang Yang"
+title: "Predicting Erectile Function in Patients Undergoing Stereotactic Body Radiation Therapy"
+author: "09688532 and 91455724"
 date: "2017-01-26"
 header-includes:
     - \usepackage{setspace}\doublespacing
 output: pdf_document
+
 ---
 
 ## Abstract
-Stereotactic Body Radiation Therapy (SBRT) is a new method for treating prostate cancer. This study looks at the potential for SBRT patients to experience erectile dysfunction, an important side-effect that is associated with the treatment. Using a logistic regression model, this study finds that baseline variables including age, score on a quality of life survey, erectile function at baseline, and prostate-specific antigen levels can be used to predict the probability of having erectile function two years after recieving SBRT. The model performs well, with XX area under curve and XX% predictive probability. Following the results from the model, we conclude that around XX% of patients who undergo SBRT are likely to lose erectile function. 
+Stereotactic Body Radiation Therapy (SBRT) is a new method for treating prostate cancer. This study looks at the potential for SBRT patients to experience erectile dysfunction, an important side-effect that is associated with the treatment. Using a logistic regression model, this study finds that baseline variables including age, score on a quality of life survey, erectile function at baseline, and prostate-specific antigen levels can be used to predict the probability of having erectile function two years after recieving SBRT. The model performs well, with a value of 0.73 area under curve (AUC) and XX% predictive probability. Following the results from the model, we conclude that around XX% of patients who undergo SBRT are likely to lose erectile function. 
 
 ## Introduction
 Stereotactic Body Radiation Therapy (SBRT) is a new treatment option available for prostate cancer, the most common form of male cancer. The treatment is characterized by relatively few instances of high dose radiation over a short period of time, as opposed to previous treatment methods with small doses of radiation over a longer period of time. Given that SBRT has around the same tumor kill effectiveness as the previous treatment, and that prostate cancer is quite common and very treatable, the largest concern associated with treatment selection is the lifestyle impact of side-effects. In particular, the most relevant side-effect associated with SBRT is the potential for erectile dysfunction. 
 
-In this study, data collected from SBRT patients is used to fit a logistic regression model exploring the likelihood of losing erectile function following treatment with SBRT. The data included baseline variables such as: age; Gleason score, the grade of the patient's cancer; prostate-specific antigen (PSA), a continuous measurement from a blood test associated with aggressiveness of one's cancer; T-Stage Group, categorizing the size and spread of the tumor; androgen deprivation therapy (ADT), a variable indicating whether or not the patient was chemically castrated; body-mass index (BMI), a measure of height-to-weight ratio; and erectile function. A more detailed look at our variables can be found in Table XX.
+In this study, data collected from SBRT patients is used to fit a logistic regression model exploring the likelihood of losing erectile function following treatment with SBRT. The data included baseline variables such as: age; Gleason score, the grade of the patient's cancer; prostate-specific antigen (PSA), a continuous measurement from a blood test associated with aggressiveness of one's cancer; T-Stage Group, categorizing the size and spread of the tumor; androgen deprivation therapy (ADT), a variable indicating whether or not the patient was chemically castrated; body-mass index (BMI), a measure of height-to-weight ratio; and erectile function. A more detailed look at our variables can be found in Table 1, which includes descriptive statistics for each variable, including the mean, standard deviation, median, minimum, and maximum.
 
 Our model shows that age, score on a health survey, and prostate-specific antigen levels can be used to predict the probability of erectile function two years post-treatment with reasonably high accuracy. 
 
-
-
-### Variables
-- Age
-- Gleason Score
-- PSA
-- T-Stage Group
-- ADT
-- BMI
-- Erectile Function at Baseline
-- Erectile Function at 2 years
-
 ## Methods
-Clinical and biomarker data were collected from 325 patients with prostate cancer that experienced SBRT and were followed for 2 years or longer between 2008 and 2013. All the patients in the data were treated at a single institution. 
+Clinical and biomarker data were collected from 325 patients with prostate cancer that experienced SBRT and were followed for 2 years or longer between 2008 and 2013. All the patients in the data were treated at a single institution. The dataset does not have any missing values, but only contains information from patients who underwent radiation therapy. These radiation therapy patients are generally older, sicker, and at more advanced stages of cancer than patients who elect for surgery. The dataset also contains information from patients who already reported no erectile function at baseline, and these patients were not removed before analysis. 
 
-Our analysis consists of two parts. In the first part, we carry out a series of exploratory data analysis in order to understand the data in general so that we can choose an appropriate statistical model to build, and in the second part we build a logistic regression model to predict the probability that one will have erectile function at two years after SBRT.
 
-### Exploratory Data analysis
-To get a big picture of how the data look like, we first generated a table of descriptive statistics for each variable, including the mean, standard deviation, median, minimum, maximum, etc. For categorical variables(Gleason Score, T-Stage Group, and ADT), we also calculated the frequency of each category. With respect to the "Erectile Function at Baseline", and "Erectile Function at 2 Years", we calculated the frequency of changing from 0 to 0, 0 to 1, 1 to 0 and 1 to 1 respectively. We could use this frequency table to estimate the rate of erectile function following SBRT.
+To check for outliers or distribution oddities, we plotted a histogram for each of the continuous variables. If we found outliers in a histogram, we would first look at those outliers to determine if their values are theoretically possible. If the outliers were clearly typos, we would contact the data provider and then remove them. Any values that were strange but theoretically possible were left in the model. In particuar, subject 67 has a BMI of 112, which is very different from the other BMI values but still within the realm of possibility.
 
-We then plotted a histogram for each of the continuous variable, in order to see if there are any outliers or something strange with the distribution. If we found outliers in a histogram, we would first look into those outliers to determine if those values are theoretically possible. If they were clearly typos we could safely remove them. If they were theoretically possible, then we needed to determine the goodness of fit of the models with and with out including those outliers to determine whether we should keep those subjects.
-
-Collinearity was another potential issue, which would not reduce the predictive power of the model overall, but could reduce the preciseness of the calculations of individual predictors. Hence we calculated the correlation between each of the potential predictors and visualized the correlation matrix using the corrplot function in R, so that we could directly find any pair of predictors that have high correlations.
+Collinearity was another potential issue, which would not reduce the predictive power of the model overall, but could reduce the preciseness of the calculations of individual predictors. Hence we calculated the correlation between each of the potential predictors and visualized the correlation matrix using the corrplot function in R, so that we could directly find any pair of predictors that have high correlations. In our dataset, we expected HRQOL and Erectile function at Baseline to be highly correlated, because the HRQOL survey includes questions that ask about erectile function. We found that the correlation between these two variables was 0.73, but kept both variables in the model because they were both shown to be highly significant, as explained in more detail below. 
 
 ### Logistic Regression
-Since our outcome variable "Erectile Function at 2 Years" was a binary variable, it was reasonable for us to use a logistic regression model, because it met one of our objectives, which was to estimate the probability of having function at 2 years, and the interpretation of the effects of predictors in the logistic regression model was straightforward. We also considered using other classification methods such as random forest classifier and supported vector classifier, but since it would be hard to interpert the effects of the predictors in those models, we decided to focus on logistic regression.
+We built a logistic regression model to predict the probability that one will have erectile function at two years after SBRT. The model was built in the R language version 3.3.2 (2016-10-31), using the package glm. See appendix XX for the full reproducible code document.
 
-We evaluated the performance of our model based on its predicting accuracy rate, goodness of fit, and the area under receiver operating characteristic curve (the ROC curve). We calculated the predicting accuracy rate as the proportion of subjects that we predicted correctly among all 325 subjects. We tested the goodness of fit by using the Hosmer-Lemeshow test, which was a commonly used statistical test for goodness of fit for logistic regression models. We created the ROC curve by plotting the true positive rate (TPR) against the false positive rate (FPR) at various threshold settings, which could compare the performance of different binary classifiers. We used a threshold of 0.5, so that if the predicted probability was greater or equal to 0.5, then we predicted that the subject would have erectile function at 2 years. (Do we need to try different threshold and compare their AUC?)
+Our model was fit with "Erectile Function at 2 Years" as the outcome variable, and all other variables (Age, Gleason Score, PSA, T-Stage Group, ADT, BMI, Erectile Function at Baseline) as predictors. Age in the model was centered by subtracting the mean age from each entry. Following a recommendation from the physician, we collapsed Gleason score into "low" (GS <= 6), "medium" (GS == 7), and "high" (GS >= 8) categories. Because there was only a single patient with T-Stage group >= 2, we collapsed T-Stage group into two categories, 0 and 1, adding the patient with T-Stage group >= 2 into the 1 group. 
+
+We decided to use logistic regression because it meshed with the objectives of the study: classification, interpretation, and prediction. Logistic regression is well-suited for our outcome variable "Erectile Function at 2 Years," which is a binary variable, allows us to estimate the probability of having function at 2 years, and also enables the straightforward interpretation of the effects of each predictor in the model. We briefly considered using other classification methods, such as a random forest classifier or a support vector machine classifier, but since it would be hard or impossible to interpret the effects of each predictor using those models, we decided to focus on logistic regression. Besides our final model, we also tried a few other logistic regression models including interaction terms, in particular between age and other covariates. These models did not perform noticeably better than our reported final model. Another model, fit using only data from patients who reported erectile function at baseline, also did not show any improvement. 
+
+To analyze the possible multicolinear effects of including both HRQOL and Erection function at baseline variables in the model, we fit the model with each variable individually, and then with both. We decided to keep both variables in the model because both variables were shown to be highly significant when fit toggether, and because models without both variables performed worse. 
+
+We evaluated the performance of our model based on its prediction accuracy rate, goodness of fit, and the area under its receiver operating characteristic (ROC) curve. We calculated the prediction accuracy rate as the proportion of subjects that we predicted correctly among all 325 subjects when using a probability of 0.5 as the threshold. We tested the goodness of fit by using the Hosmer-Lemeshow test, which is a commonly used statistical test for goodness of fit for logistic regression models. The Hosmer-Lemeshow test resulted in a X-squared value of 6.8019 and a p-value of 0.5581, meaning we fail to reject the null hypothesis of poor model fit and fail to find any evidence of lack of goodness of fit. We created the ROC curve by plotting the true positive rate (TPR) against the false positive rate (FPR) at various threshold settings, which could compare the performance of different binary classifiers, and found the area under curve (AUC) to be 0.73. When classifying patients with their final outcome, we used a threshold of 0.5, so that if the predicted probability was greater or equal to 0.5, then we predicted that the subject would have erectile function at 2 years.
 
 
 ## Results
+```{r load_packages, message=FALSE, warning=FALSE, results='hide', echo=FALSE}
+# Load packages
+library(readxl)
+library(knitr)
+library(data.table)
+library(corrplot)
+library(broom)
+library(stargazer)
+library(ggplot2)
+library(gridExtra)
+library(psych)
+library(ROCR)
+```
+```{r load_data, message=FALSE, warning=FALSE, results="hide", echo = F}
+prostate <- read_excel("~/Downloads/Prostate SBRT Sexual Function Data.xlsx", skip = 7)
+prostate <- data.table(prostate)
+prostate <- prostate[complete.cases(prostate)] # remove last row which is empty
+# Code ADT as numeric; Y = 1, N = 0
+prostate[ADT == "Y", ADT := 1]
+prostate[ADT == "N", ADT := 0]
+prostate[, ADT := as.numeric(ADT)]
+```
+
+```{r descriptive_stats, message=FALSE, warning=FALSE, results="asis", echo=FALSE}
+descriptive_stats <- data.table(describe(prostate), keep.rownames = T)[, .(variable = rn, mean, sd, min, median, max)]
+
+stargazer(prostate, header = F, type = "latex", digits = 2, title = "Descriptive Statistics")
+```
+
+```{r freq_table, echo = F, results="asis"}
+stargazer(table(prostate[, .(`Erectile Function at Baseline`, `Erectile Function at 2 years`)]), header = F)
+```
+
+The coefficient results from our logistic regression model can be found in Table 3. The model shows that Age, HRQOL, and Erectile function at Baseline are highly predictive of Erectile function at two years. It also shows that PSA is marginally significant. 
+
+The variables PSA, HRQOL, and Erectile function at baseline were shown to be protective of Erectile function at two years, while the variables Age, Gleason score, T-Stage group, ADT, and BMI were negatively associated. 
+
+In general, these results are in line with our original hypothesis, excluding the resulting for PSA. Harmful variables such as Age, Gleason score, T-Stage group, ADT, and BMI would be expected to have a negative association with Erectile function at two years. The fact that most variables in the model were not found to be significant is also not very surprising: all variables were collected at baseline, and since all patients underwent the same treatment, cancer-related variables were not expected to be very predictive of erectile function at two years. The only real disappointment was Androgen Deprivation Therapy (ADT), a variable indicating the presence of chemical castration, which biologically seems to be a potential cause of erectile dysfunction. However, we do not have information on when the patients went through ADT, relative to when they reported their other variables, so we cannot say for sure why we failed to find an association between ADT and erectile dysfunction. 
+
+The most unexpected result is that the odds ratio for PSA is greater than 1, indicating that a higher PSA value is actually protective of erectile function at two years, despite indicating a more aggressive and risky cancer. We would need more domain knowledge and data to attempt to explain why this is the case. However, it should be noted that PSA is only slightly significant in our model.
 
 
-## Discussion
+```{r logreg, echo=FALSE, message=FALSE, warning=FALSE, results="hide"}
+prostate[`Gleason Score` <= 6, `Gleason Score` := 0]
+prostate[`Gleason Score` >= 8, `Gleason Score` := 2]
+prostate[`Gleason Score` == 7, `Gleason Score` := 1]
+prostate[`T-Stage Group` == 2, `T-Stage Group` := 1]
+
+prostate_logreg <- glm(`Erectile Function at 2 years` ~ Age + PSA + `Gleason Score` + `T-Stage Group` + HRQOL + ADT + BMI + `Erectile Function at Baseline`, family = binomial(link = "logit"), data = prostate)
+
+# edit results table
+prostate_logreg_results <- data.table(tidy(prostate_logreg))
+prostate_logreg_results[, lower := exp(estimate - 1.96*std.error)]
+prostate_logreg_results[, OR := exp(estimate)]
+prostate_logreg_results[, upper := exp(estimate + 1.96*std.error)]
+
+prostate[, predicted_prob := predict(prostate_logreg, type = "response")]
+```
+
+```{r logregresults, echo=FALSE, message=FALSE, warning=FALSE, results="asis"}
+stargazer(prostate_logreg, header = F, ci=T, single.row = T, coef = list(prostate_logreg_results$OR), ci.custom = list(prostate_logreg_results[, .(lower, upper)]), p = list(prostate_logreg_results$p.value), keep = 1:8, keep.stat = c("n"), title = "Logistic regression results", notes = "Values reported are odds ratios for one unit change and 95 percent confidence intervals.", notes.align = "c")
+```
 
 
-### Final Conclusions
+The ROC curve produced from our model can be found in figure 1. The area under the ROC curve is 0.7308, indicating reasonable model performance. 
+
+```{r ROC Curve, echo = FALSE}
+pred <- prediction(prostate$predicted_prob, prostate$`Erectile Function at 2 years`)
+roc.perf = performance(pred, measure = "tpr", x.measure = "fpr")
+plot(roc.perf, col=rainbow(10), avg="threshold")
+# auc(prostate$`Erectile Function at 2 years`, prostate$predicted)
+```
+
+
+## Conclusions
+You will get erectile dysfunction
 
 
 ## Appendix
