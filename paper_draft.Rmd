@@ -13,9 +13,25 @@ Stereotactic Body Radiation Therapy (SBRT) is a new method for treating prostate
 ## Introduction
 Stereotactic Body Radiation Therapy (SBRT) is a new treatment option available for prostate cancer, the most common form of male cancer. The treatment is characterized by relatively few instances of high dose radiation over a short period of time, as opposed to previous treatment methods with small doses of radiation over a longer period of time. Given that SBRT has around the same tumor kill effectiveness as the previous treatment, and that prostate cancer is quite common and very treatable, the largest concern associated with treatment selection is the lifestyle impact of side-effects. In particular, the most relevant side-effect associated with SBRT is the potential for erectile dysfunction. 
 
-In this study, data collected from SBRT patients is used to fit a logistic regression model exploring the likelihood of losing erectile function following treatment with SBRT. The model shows that variables such as age, score on a health survey, and prostate-specific antigen levels can be used to predict the probability of erectile function two years post-treatment with reasonably high accuracy. 
+In this study, data collected from SBRT patients is used to fit a logistic regression model exploring the likelihood of losing erectile function following treatment with SBRT. The data included baseline variables such as: age; Gleason score, the grade of the patient's cancer; prostate-specific antigen (PSA), a continuous measurement from a blood test associated with aggressiveness of one's cancer; T-Stage Group, categorizing the size and spread of the tumor; androgen deprivation therapy (ADT), a variable indicating whether or not the patient was chemically castrated; body-mass index (BMI), a measure of height-to-weight ratio; and erectile function. A more detailed look at our variables can be found in Table XX.
+
+Our model shows that age, score on a health survey, and prostate-specific antigen levels can be used to predict the probability of erectile function two years post-treatment with reasonably high accuracy. 
+
+
+
+### Variables
+- Age
+- Gleason Score
+- PSA
+- T-Stage Group
+- ADT
+- BMI
+- Erectile Function at Baseline
+- Erectile Function at 2 years
 
 ## Methods
+
+
 Our analysis consists of two parts. In the first part, we carry out a series of exploratory data analysis in order to understand the data in general so that we can choose an appropriate statistical model to build, and in the second part we build a logistic regression model to predict the probability that one will have erectile function at two years after SBRT.
 
 ### Exploratory Data analysis
