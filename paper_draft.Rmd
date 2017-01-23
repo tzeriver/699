@@ -99,7 +99,7 @@ prostate[, predicted_prob := predict(prostate_logreg, type = "response")]
 ```
 
 ```{r logregresults, echo=FALSE, message=FALSE, warning=FALSE, results="asis"}
-stargazer(prostate_logreg, header = F, ci=T, single.row = T, coef = list(prostate_logreg_results$OR), ci.custom = list(prostate_logreg_results[, .(lower, upper)]), p = list(prostate_logreg_results$p.value), keep = 1:8, keep.stat = c("n"), title = "Logistic regression results", notes = "Values reported are odds ratios for one unit change and 95 percent confidence intervals.", notes.align = "c")
+stargazer(prostate_logreg, header = F, ci=T, single.row = T, coef = list(prostate_logreg_results$OR), ci.custom = list(prostate_logreg_results[, .(lower, upper)]), p = list(prostate_logreg_results$p.value), keep = 1:8, keep.stat = c("n"), title = "Logistic regression results", dep.var.labels   = "Odds ratios for one unit change (95\\% CI)", dep.var.caption  = "\\it{For Erectile function at baseline:}", notes.align = "c")
 ```
 
 
