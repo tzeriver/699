@@ -102,19 +102,33 @@ prostate[, predicted_prob := predict(prostate_logreg, type = "response")]
 stargazer(prostate_logreg, header = F, ci=T, single.row = T, coef = list(prostate_logreg_results$OR), ci.custom = list(prostate_logreg_results[, .(lower, upper)]), p = list(prostate_logreg_results$p.value), keep = 1:8, keep.stat = c("n"), title = "Logistic regression results", dep.var.labels   = "Odds ratios for one unit change (95\\% CI)", dep.var.caption  = "\\it{For Erectile function at baseline:}", notes.align = "c")
 ```
 
+The ROC curve produced from our model can be found in Figure 1. The area under the ROC curve is 0.842, indicating reasonable model performance. Using the ROC curve, we used the minimum Eucliden distance between the ROC curve and the upper left corner of the graph window to calculate an optimal classification threshold of 0.426. Using this threshold, 38 percent of patients in the study were predicted to have erectile function after two years down from 49 percent at baseline, which represents a 0.225 error rate from the actual results in the data. For comparison, using 0.5 as the cutoff, 30 percent of patients were expected to retain erectile function, representing a 0.206 error rate. In actuality, 31 percent of patients had function after two years. The benefit of using the calculated threshold of 0.426 over 0.5 is it is more optimistic--by classifying more people as retaining erectile function, we increase the true negative rate, and are less likely to scare off patients from opting for the treatment. 
 
-The ROC curve produced from our model can be found in figure 1. The area under the ROC curve is 0.7308, indicating reasonable model performance. 
-
-```{r ROC Curve, echo = FALSE}
+```{r ROC Curve, echo = FALSE, fig.cap="ROC Curve"}
 pred <- prediction(prostate$predicted_prob, prostate$`Erectile Function at 2 years`)
-roc.perf = performance(pred, measure = "tpr", x.measure = "fpr")
-plot(roc.perf, col=rainbow(10), avg="threshold")
+roc.perf <- performance(pred, measure = "tpr", x.measure = "fpr")
+# I know, the following code is bizarre. Just go with it.
+auc <- performance(pred, measure = "auc")
+auc <- auc@y.values[[1]]
+
+roc.data <- data.frame(fpr=unlist(roc.perf@x.values),
+                       tpr=unlist(roc.perf@y.values),
+                       model="GLM")
+ggplot(roc.data, aes(x=fpr, ymin=0, ymax=tpr)) +
+    geom_ribbon(alpha=0.2) +
+    geom_line(aes(y=tpr)) + 
+   labs(x = "false positive rate", y = "true positive rate", caption = "AUC = 0.842") +
+  geom_abline(slope = 1)
+# plot(roc.perf, col=rainbow(10), avg="threshold")
 # auc(prostate$`Erectile Function at 2 years`, prostate$predicted)
 ```
 
 
 ## Conclusions
-You will get erectile dysfunction
+Based on the logistic regression model, we found that age, HRQOL, and erectile function at baseline were highly predictive of erectile function at two years. The model failed to show that Gleason score, T-Stage group, ADT, or BMI were predictive of erectile function at two years. PSA was found to be moderately predictive, but contrary to expectations, was protective of erectile function. HRQOL and erectile function at baseline were also protective of erectile function, while age was detrimental.  
 
+The model was able to produce an ROC curve with good AUC and reasonable predictive probability. Using a cutoff of 0.426, we predicted 38 percent of people to have erectile function at two years, representing a 0.225 error rate when compared to the actual results.
+
+Overall, we conclude that men who are relatively young, have high reported HRQOL scores and PSA levels, and have erectile function at baseline are very likely to retain their erectile function two years afterwards. Of these predictors, HRQOL and age are the most relevant, with PSA levels having less of an impact. Meanwhile, men who are relatively old, have low HRQOL scores, and have low levels of PSA are very likely to lose function. Finally, men who do not have erectile function at baseline are unlikely to gain function back at two years, no matter what their profile looks like. 
 
 ## Appendix
