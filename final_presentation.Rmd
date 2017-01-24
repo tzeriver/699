@@ -17,6 +17,7 @@ library(stargazer)
 library(ggplot2)
 library(gridExtra)
 library(ROCR)
+library(boot)
 prostate <- read_excel("~/Downloads/Prostate SBRT Sexual Function Data.xlsx", skip = 7)
 prostate <- data.table(prostate)
 prostate <- prostate[complete.cases(prostate)] # remove last row which is empty
@@ -97,8 +98,22 @@ stargazer(prostate_logreg, header = F, ci=T, single.row = T, coef = list(prostat
 - X-squared value of 6.8019 
 - p-value of 0.5581
 - We fail to find any evidence of lack of goodness of fit
-- 10-fold CV:
-- 
+- 10-fold CV: raw estimate ~ 0.24
+  - cost function: mean number incorrect at threshold = 0.5
+```{r, echo = FALSE, results = "hide"}
+cost <- function(r, pi = 0) {
+  mean(abs(r - (pi > 0.5)))
+  #cat("r:", r, "\npi:", pi, "\n")
+}
+mycost <- function(r, pi){
+    weight1 = 1 #cost for getting 1 wrong
+    weight0 = 1 #cost for getting 0 wrong
+    c1 = (r==1)&(pi==0) #logical vector - true if actual 1 but predict 0
+    c0 = (r==0)&(pi==1) #logical vector - true if actual 0 but predict 1
+    return(mean(weight1*c1+weight0*c0))
+}
+cv.glm(prostate, prostate_logreg, cost, K = 10)$delta
+```
 
 ## Results
 ```{r ROC Curve, echo = FALSE, fig.cap="ROC Curve"}
@@ -130,5 +145,12 @@ ggplot(roc.data, aes(x=fpr, ymin=0, ymax=tpr)) +
 - Age, HRQOL, and erectile function are predictive of erectile function at two years
 - HRQOL and erectile function at baseline are protective, while age is detrimental
 - PSA is somewhat protective
-- Younger men, with high HRQOL scores and high PSA levels, and have erectile function at baseline will likely retain their erectile function 
 - HRQOL and age are the most relevant; PSA levels less so.
+
+## Recommendations
+- Younger men, with high HRQOL scores and high PSA levels, and have erectile function at baseline will likely retain their erectile function
+```{r, echo = FALSE}
+example_prostate <- prostate[c(143, 179), .(cen_age = centered_age, `Gleason Score`, T_Stage = `T-Stage Group`, PSA, HRQOL, ADT, BMI, Erec_base = `Erectile Function at Baseline`, prob_func = predicted_prob, pred_func = ifelse(predicted_prob <= 0.5, 0, 1))]
+kable(example_prostate, digits = 2)
+```
+
