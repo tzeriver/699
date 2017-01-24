@@ -16,6 +16,7 @@ library(broom)
 library(stargazer)
 library(ggplot2)
 library(gridExtra)
+library(ROCR)
 prostate <- read_excel("~/Downloads/Prostate SBRT Sexual Function Data.xlsx", skip = 7)
 prostate <- data.table(prostate)
 prostate <- prostate[complete.cases(prostate)] # remove last row which is empty
@@ -93,23 +94,34 @@ stargazer(prostate_logreg, header = F, ci=T, single.row = T, coef = list(prostat
 
 
 ## Results
+```{r ROC Curve, echo = FALSE, fig.cap="ROC Curve"}
+pred <- prediction(prostate$predicted_prob, prostate$`Erectile Function at 2 years`)
+roc.perf <- performance(pred, measure = "tpr", x.measure = "fpr")
+# I know, the following code is bizarre. Just go with it.
+auc <- performance(pred, measure = "auc")
+auc <- auc@y.values[[1]]
 
+roc.data <- data.frame(fpr=unlist(roc.perf@x.values),
+                       tpr=unlist(roc.perf@y.values),
+                       model="GLM")
+ggplot(roc.data, aes(x=fpr, ymin=0, ymax=tpr)) +
+    geom_ribbon(alpha=0.2) +
+    geom_line(aes(y=tpr)) + 
+   labs(x = "false positive rate", y = "true positive rate") +
+  geom_abline(slope = 1)
+```
+
+## Error rates
+- AUC = 0.842
+- Threshold = 0.426 found using Euclidean distance
+- 38 percent predicted to have erectile function at two years; from 49 percent at baseline (0.225 error rate)
+- Using 0.5 as the cutoff, 30 percent expected to retain (0.206 error rate)
+- In dataset, 31 percent of patients had function at two years
+- Calculated threshold is more optimistic and encourages treatment 
 
 ## Conclusions
 - Age, HRQOL, and erectile function are predictive of erectile function at two years
+- HRQOL and erectile function at baseline are protective, while age is detrimental
 - PSA is somewhat protective
-- Holding everything else constant, each one-year increase in baseline age increases the odds of losing erectile function by 6%. 
-- Holding everything else constant, HRQOL score is protective of erectile function. 
-
-## Prediction
-```{r, echo = FALSE}
-example_prostate <- data.table(centered_age = 0, "Gleason Score" =  7, "T-Stage Group" = 0, "PSA" = 7.7, 
-                               HRQOL = 56, ADT = 0, BMI = 29, "Erectile Function at Baseline" =  1)
-example_prostate <- example_prostate[, probability_of_function := predict(prostate_logreg, example_prostate, type = "response")]
-example_prostate <- example_prostate[, predicted_function := ifelse(probability_of_function >= 0.5, 1, 0)]
-example_prostate <- rbind(example_prostate, prostate[c(143, 179, 199, 231, 149), .(centered_age, `Gleason Score`, `T-Stage Group`, PSA, HRQOL, ADT, BMI, `Erectile Function at Baseline`, probability_of_function = predicted_prob, predicted_function = predicted)])[, .(cen_age = centered_age, `Gleason Score`, T_Stage = `T-Stage Group`, PSA, HRQOL, ADT, BMI, Erec_base = `Erectile Function at Baseline`, prob_func = probability_of_function, pred_func = predicted_function)]
-kable(example_prostate, digits = 2)
-```
-
-
-
+- Younger men, with high HRQOL scores and high PSA levels, and have erectile function at baseline will likely retain their erectile function 
+- HRQOL and age are the most relevant; PSA levels less so.

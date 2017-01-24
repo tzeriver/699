@@ -119,8 +119,6 @@ ggplot(roc.data, aes(x=fpr, ymin=0, ymax=tpr)) +
     geom_line(aes(y=tpr)) + 
    labs(x = "false positive rate", y = "true positive rate", caption = "AUC = 0.842") +
   geom_abline(slope = 1)
-# plot(roc.perf, col=rainbow(10), avg="threshold")
-# auc(prostate$`Erectile Function at 2 years`, prostate$predicted)
 ```
 
 
