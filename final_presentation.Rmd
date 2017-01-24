@@ -1,0 +1,115 @@
+---
+title: "Interim Presentation"
+author: "Dylan Sun & Zijiang Yang"
+date: '2017-01-17'
+output:
+  slidy_presentation: 
+    font_adjustment: +2
+---
+
+```{r, message=FALSE, warning=FALSE, echo = FALSE, results = "hide"}
+library(readxl)
+library(knitr)
+library(data.table)
+library(corrplot)
+library(broom)
+library(stargazer)
+library(ggplot2)
+library(gridExtra)
+prostate <- read_excel("~/Downloads/Prostate SBRT Sexual Function Data.xlsx", skip = 7)
+prostate <- data.table(prostate)
+prostate <- prostate[complete.cases(prostate)] # remove last row which is empty
+# Code ADT as numeric; Y = 1, N = 0
+prostate[ADT == "Y", ADT := 1]
+prostate[ADT == "N", ADT := 0]
+prostate[, ADT := as.numeric(ADT)]
+prostate[, centered_age := Age - mean(Age)]
+prostate[`Gleason Score` <= 6, `Gleason Score` := 0]
+prostate[`Gleason Score` >= 8, `Gleason Score` := 2]
+prostate[`Gleason Score` == 7, `Gleason Score` := 1]
+prostate[`T-Stage Group` == 2, `T-Stage Group` := 1]
+```
+
+
+## Objectives
+- Determine predictors of erectile function preservation after SBRT
+- Determine the erectile function rates following SBRT
+- Determine who is likely to have erectile function
+
+## Potential Predictors
+Negatively Associated:
+- Age, Gleason Score, T-stage, PSA, ADT, BMI
+
+Positively Associated:
+- HRQOL, Erectile Function at Baseline
+
+We expect HRQOL and Erectile Function at Baseline to be highly correlated, because erectile function is included in the questionnaire. 
+
+
+## How many people lose function?
+- At baseline:
+158 with function, 167 without (0.49)
+
+- At two years:
+102 with function, 223 without (0.31)
+
+- A seemingly large number of people lose function in just two years
+
+```{r echo=FALSE}
+nf_nf <- dim(prostate[`Erectile Function at Baseline` == 0 & `Erectile Function at 2 years` == 0])[1]
+nf_hf <- dim(prostate[`Erectile Function at Baseline` == 0 & `Erectile Function at 2 years` == 1])[1]
+hf_nf <- dim(prostate[`Erectile Function at Baseline` == 1 & `Erectile Function at 2 years` == 0])[1]
+hf_hf <- dim(prostate[`Erectile Function at Baseline` == 1 & `Erectile Function at 2 years` == 1])[1]
+counts <- data.table(never_functional = nf_nf, gain_function = nf_hf, loss_function = hf_nf, retain_function = hf_hf)
+kable(counts)
+```
+
+
+## Data processing
+- Age was centered
+- Gleason score was collapsed into "low" (GS <= 6), "medium" (GS == 7), and "high" (GS >= 8) 
+- T-Stage group was collapsed into two categories, 0 and 1; the lone patient with T-Stage group >= 2 went into the 1 group. 
+
+
+## Model 
+- Outcome variable: "Erectile Function at 2 Years" 
+- Predictors: Age, Gleason Score, PSA, T-Stage Group, ADT, BMI, Erectile Function at Baseline
+- Logistic regression using the glm method in R
+
+## Results
+```{r echo=FALSE, results = "hide"}
+prostate_logreg <- glm(`Erectile Function at 2 years` ~ centered_age + `Gleason Score` + `T-Stage Group` + PSA + HRQOL + ADT + BMI + `Erectile Function at Baseline`, data = prostate, family = binomial(link = "logit"))
+
+prostate_logreg_results <- data.table(tidy(prostate_logreg))
+prostate_logreg_results[, lower := exp(estimate - 1.96*std.error)]
+prostate_logreg_results[, OR := exp(estimate)]
+prostate_logreg_results[, upper := exp(estimate + 1.96*std.error)]
+
+prostate[, predicted_prob := predict(prostate_logreg, type = "response")]
+```
+```{r echo = FALSE, message=FALSE, warning=FALSE, results="asis"}
+stargazer(prostate_logreg, header = F, ci=T, single.row = T, coef = list(prostate_logreg_results$OR), ci.custom = list(prostate_logreg_results[, .(lower, upper)]), p = list(prostate_logreg_results$p.value), keep = 1:8, keep.stat = c("n"), title = "Logistic regression results", dep.var.labels   = "Odds ratios for one unit change (95\\% CI)", dep.var.caption  = "\\it{For Erectile function at baseline:}", notes.align = "c", type = "html")
+```
+
+
+## Results
+
+
+## Conclusions
+- Age, HRQOL, and erectile function are predictive of erectile function at two years
+- PSA is somewhat protective
+- Holding everything else constant, each one-year increase in baseline age increases the odds of losing erectile function by 6%. 
+- Holding everything else constant, HRQOL score is protective of erectile function. 
+
+## Prediction
+```{r, echo = FALSE}
+example_prostate <- data.table(centered_age = 0, "Gleason Score" =  7, "T-Stage Group" = 0, "PSA" = 7.7, 
+                               HRQOL = 56, ADT = 0, BMI = 29, "Erectile Function at Baseline" =  1)
+example_prostate <- example_prostate[, probability_of_function := predict(prostate_logreg, example_prostate, type = "response")]
+example_prostate <- example_prostate[, predicted_function := ifelse(probability_of_function >= 0.5, 1, 0)]
+example_prostate <- rbind(example_prostate, prostate[c(143, 179, 199, 231, 149), .(centered_age, `Gleason Score`, `T-Stage Group`, PSA, HRQOL, ADT, BMI, `Erectile Function at Baseline`, probability_of_function = predicted_prob, predicted_function = predicted)])[, .(cen_age = centered_age, `Gleason Score`, T_Stage = `T-Stage Group`, PSA, HRQOL, ADT, BMI, Erec_base = `Erectile Function at Baseline`, prob_func = probability_of_function, pred_func = predicted_function)]
+kable(example_prostate, digits = 2)
+```
+
+
+
