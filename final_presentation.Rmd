@@ -92,6 +92,13 @@ prostate[, predicted_prob := predict(prostate_logreg, type = "response")]
 stargazer(prostate_logreg, header = F, ci=T, single.row = T, coef = list(prostate_logreg_results$OR), ci.custom = list(prostate_logreg_results[, .(lower, upper)]), p = list(prostate_logreg_results$p.value), keep = 1:8, keep.stat = c("n"), title = "Logistic regression results", dep.var.labels   = "Odds ratios for one unit change (95\\% CI)", dep.var.caption  = "\\it{For Erectile function at baseline:}", notes.align = "c", type = "html")
 ```
 
+## Results
+- Hosmer-lemeshow test:
+- X-squared value of 6.8019 
+- p-value of 0.5581
+- We fail to find any evidence of lack of goodness of fit
+- 10-fold CV:
+- 
 
 ## Results
 ```{r ROC Curve, echo = FALSE, fig.cap="ROC Curve"}
