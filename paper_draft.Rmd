@@ -128,5 +128,3 @@ Based on the logistic regression model, we found that age, HRQOL, and erectile f
 The model was able to produce an ROC curve with good AUC and reasonable predictive probability. Using a cutoff of 0.426, we predicted 38 percent of people to have erectile function at two years, representing a 0.225 error rate when compared to the actual results.
 
 Overall, we conclude that men who are relatively young, have high reported HRQOL scores and PSA levels, and have erectile function at baseline are very likely to retain their erectile function two years afterwards. Of these predictors, HRQOL and age are the most relevant, with PSA levels having less of an impact. Meanwhile, men who are relatively old, have low HRQOL scores, and have low levels of PSA are very likely to lose function. Finally, men who do not have erectile function at baseline are unlikely to gain function back at two years, no matter what their profile looks like. 
-
-## Appendix
