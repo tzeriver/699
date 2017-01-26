@@ -19,7 +19,7 @@ In this study, data collected from SBRT patients is used to fit a logistic regre
 Our model shows that age, score on a health survey, and prostate-specific antigen levels can be used to predict the probability of erectile function two years post-treatment with reasonably high accuracy. 
 
 ## Methods
-Clinical and biomarker data were collected from 325 patients with prostate cancer that experienced SBRT and were followed for 2 years or longer between 2008 and 2013. All the patients in the data were treated at a single institution. The dataset does not have any missing values, but only contains information from patients who underwent radiation therapy. These radiation therapy patients are generally older, sicker, and at more advanced stages of cancer than patients who elect for surgery. The dataset also contains information from patients who already reported no erectile function at baseline, and these patients were not removed before analysis. 
+Clinical and biomarker data were collected from 325 patients with prostate cancer that experienced SBRT and were followed for 2 years or longer between 2008 and 2013. All the patients in the data were treated at a single institution. The dataset does not have any missing values, but only contains information from patients who underwent radiation therapy. These radiation therapy patients are generally older, sicker, and at more advanced stages of cancer than patients who elect for surgery. The dataset also contains information from patients who already reported no erectile function at baseline, and these patients were not removed before analysis. Table 2 contains counts of patients by erectile function at baseline and at two years. 
 
 
 To check for outliers or distribution oddities, we plotted a histogram for each of the continuous variables. If we found outliers in a histogram, we would first look at those outliers to determine if their values are theoretically possible. If the outliers were clearly typos, we would contact the data provider and then remove them. Any values that were strange but theoretically possible were left in the model. In particular, subject 67 has a BMI of 112, which is very different from the other BMI values but still within the realm of possibility.
@@ -51,6 +51,7 @@ library(ggplot2)
 library(gridExtra)
 library(psych)
 library(ROCR)
+library(xtable)
 ```
 ```{r load_data, message=FALSE, warning=FALSE, results="hide", echo = F}
 prostate <- read_excel("~/Downloads/Prostate SBRT Sexual Function Data.xlsx", skip = 7)
@@ -68,9 +69,24 @@ descriptive_stats <- data.table(describe(prostate), keep.rownames = T)[, .(varia
 stargazer(prostate, header = F, type = "latex", digits = 2, title = "Descriptive Statistics")
 ```
 
-```{r freq_table, echo = F, results="asis"}
-stargazer(table(prostate[, .(`Erectile Function at Baseline`, `Erectile Function at 2 years`)]), header = F)
+```{r freq_table, echo = F, results="hide"}
+# stargazer(table(prostate[, .(`Erectile Function at Baseline`, `Erectile Function at 2 years`)]), header = F, title = "Counts by erectile function", column.labels = c("Baseline","Two years"), dep.var.labels = c("Baseline","Two years"))
 ```
+\begin{table}[!htbp] \centering 
+  \caption{Counts by erectile function} 
+  \label{} 
+\begin{tabular}{@{\extracolsep{5pt}} cccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & Baseline & Two years & Count \\ 
+\hline \\[-1.8ex] 
+1 & 0 & 0 & $153$ \\ 
+2 & 1 & 0 & $70$ \\ 
+3 & 0 & 1 & $14$ \\ 
+4 & 1 & 1 & $88$ \\ 
+\hline \\[-1.8ex] 
+\end{tabular} 
+\end{table} 
 
 The coefficient results from our logistic regression model can be found in Table 3. The model shows that Age, HRQOL, and Erectile function at Baseline are highly predictive of Erectile function at two years. It also shows that PSA is marginally significant. 
 
