@@ -3,8 +3,9 @@ title: "Final Presentation"
 author: "Dylan Sun & Zijiang Yang"
 date: '2017-01-26'
 output:
-  slidy_presentation: 
-    font_adjustment: +2
+  beamer_presentation: default
+  slidy_presentation:
+    font_adjustment: 2
 ---
 
 ```{r, message=FALSE, warning=FALSE, echo = FALSE, results = "hide"}
