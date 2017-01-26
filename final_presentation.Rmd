@@ -1,5 +1,5 @@
 ---
-title: "Interim Presentation"
+title: "Final Presentation"
 author: "Dylan Sun & Zijiang Yang"
 date: '2017-01-17'
 output:
@@ -102,7 +102,7 @@ stargazer(prostate_logreg, header = F, ci=T, single.row = T, coef = list(prostat
   - cost function: mean number incorrect at threshold = 0.5
 ```{r, echo = FALSE, results = "hide"}
 cost <- function(r, pi = 0) {
-  mean(abs(r - (pi > 0.5)))
+  mean(abs(r - (pi > 0.426)))
   #cat("r:", r, "\npi:", pi, "\n")
 }
 mycost <- function(r, pi){
