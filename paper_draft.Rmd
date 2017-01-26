@@ -1,6 +1,6 @@
 ---
 title: "Predicting Erectile Function in Patients Undergoing Stereotactic Body Radiation Therapy"
-author: "09688532 and 91455724"
+author: "8532 and 5724"
 date: "2017-01-26"
 header-includes:
     - \usepackage{setspace}\doublespacing
